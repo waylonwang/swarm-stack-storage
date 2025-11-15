@@ -314,7 +314,7 @@ services:
     volumes:
       - nfs_filebrowser_main_media:/multimedia/main
       - nfs_filebrowser_ext_media:/multimedia/ext
-      - nfs_filebrowser_data:/home/filebrowser/data
+      - nfs_filebrowser_data:/home/filebrowser
     logging:
       driver: fluentd
       options:
