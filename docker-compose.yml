@@ -312,8 +312,8 @@ services:
       PID: 1000
       PGID: 1000
     volumes:
-      - nfs_filebrowser_main_media:/multimedia/main
-      - nfs_filebrowser_ext_media:/multimedia/ext
+      - nfs_filebrowser_main_media:/multimedia_main
+      - nfs_filebrowser_ext_media:/multimedia_ext
       - nfs_filebrowser_data:/home/filebrowser
     logging:
       driver: fluentd
