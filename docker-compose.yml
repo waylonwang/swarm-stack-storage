@@ -28,6 +28,12 @@ x-defines:
   driver-common: &driver-common-ref
     type: nfs
     o: addr=${NFS_SERVER},rw,nfsvers=4
+  driver-media-main: &driver-media-main-ref
+    type: nfs
+    o: addr=${MEDIA_SERVER},rw,nfsvers=4
+  driver-media-ext: &driver-media-ext-ref
+    type: nfs
+    o: addr=${MEDIA_EXT_SERVER},rw,nfsvers=4
 
 services:
   # ------------------------------------------------------------
@@ -294,6 +300,43 @@ services:
         - homepage.weight=20
       <<: [*deploy-common-ref, *placement-default-ref]
 
+  # ------------------------------------------------------------
+  # File Browser 文件浏览器
+  # ------------------------------------------------------------
+  filebrowser:
+    <<: *service-common-ref
+    # image-ref: gtstef/filebrowser:latest
+    image: registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}/gtstef/filebrowser:latest
+    environment:
+      <<: *env-common-ref
+      PID: 1000
+      PGID: 1000
+    volumes:
+      - nfs_filebrowser_main_media:/multimedia/main
+      - nfs_filebrowser_ext_media:/multimedia/ext
+      - nfs_filebrowser_data:/home/filebrowser/data
+    logging:
+      driver: fluentd
+      options:
+        tag: docker.application.filebrowser
+        fluentd-async-connect: "true"
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.filebrowser.rule=Host(`filebrowser.${DOMAIN_SWARM}`,`filebrowser.${DOMAIN_EMERGENCY}`)
+        - traefik.http.routers.filebrowser.entrypoints=websecure
+        - traefik.http.routers.filebrowser.service=filebrowser
+        - traefik.http.routers.filebrowser.middlewares=auth,normal-chain@file
+        - traefik.http.services.filebrowser.loadbalancer.server.port=80
+        - homepage.group=Application
+        - homepage.name=filebrowser
+        - homepage.icon=filebrowser.png
+        - homepage.href=https://filebrowser.${DOMAIN_SWARM}:${EXTERNAL_PORT}/
+        - homepage.description=filebrowser
+        - homepage.siteMonitor=http://filebrowser:80
+        - homepage.weight=60
+      <<: [*deploy-common-ref, *placement-default-ref]     
+
 networks:
   network_cluster:
     external: true
@@ -334,4 +377,19 @@ volumes:
     driver_opts:
       <<: *driver-common-ref
       device: :${NFS_DEVICE}/storage/docker-registry-ui/sh
+  nfs_filebrowser_main_media:
+    driver: local
+    driver_opts:
+      <<: *driver-media-main-ref
+      device: :${MEDIA_DEVICE}
+  nfs_filebrowser_ext_media:
+    driver: local
+    driver_opts:
+      <<: *driver-media-ext-ref
+      device: :${MEDIA_DEVICE}
+  nfs_filebrowser_data:
+    driver: local
+    driver_opts:
+      <<: *driver-common-ref
+      device: :${NFS_DEVICE}/storage/filebrowser/data
 ...
