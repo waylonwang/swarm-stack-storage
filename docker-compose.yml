@@ -352,7 +352,10 @@ services:
       DB_USERNAME: ${IMMICH_DB_USERNAME}
       DB_PASSWORD: ${IMMICH_DB_PASSWORD}
       DB_DATABASE_NAME: ${IMMICH_DB_DATABASE_NAME}
-      REDIS_URL: ${IMMICH_REDIS_URL}
+      REDIS_HOSTNAME: redis
+      REDIS_PORT: 6379
+      REDIS_USERNAME: ${IMMICH_REDIS_USERNAME}
+      REDIS_PASSWORD:  ${IMMICH_REDIS_PASSWORD}
     volumes:
       - nfs_immich_data:/data
       - /etc/localtime:/etc/localtime:ro
@@ -381,8 +384,13 @@ services:
         - homepage.description=开源照片管理
         - homepage.siteMonitor=http://immich-server:2283
         - homepage.weight=30
-      <<: [*deploy-common-ref, *placement-default-ref]
-      replicas: 1
+      <<: [*deploy-common-ref]
+      placement:
+        constraints:
+          - node.labels.type == nas
+          - node.labels.media == true
+          - node.labels.nas == primary
+      
 
   # immich-machine-learning:
   #   <<: *service-common-ref
