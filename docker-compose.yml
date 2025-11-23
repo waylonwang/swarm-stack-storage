@@ -342,8 +342,8 @@ services:
   # ------------------------------------------------------------
   immich-server:
     <<: *service-common-ref
-    # image-ref: ghcr.io/immich-app/immich-server:release
-    image: registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}/immich-app/immich-server:release
+    # image-ref: ghcr.io/immich-app/immich-server:v2.3.1
+    image: registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}/immich-app/immich-server:v2.3.1
     environment:
       <<: *env-common-ref
       UPLOAD_LOCATION: /data
