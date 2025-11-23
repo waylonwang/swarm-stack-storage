@@ -497,7 +497,7 @@ volumes:
     driver: local
     driver_opts:
       <<: *driver-common-ref
-      device: :${NFS_DEVICE}/volume1/photo
+      device: :/volume1/photo
   # nfs_immich_model_cache:
   #   driver: local
   #   driver_opts:
