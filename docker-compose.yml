@@ -351,13 +351,14 @@ services:
       DB_PORT: 5432
       DB_USERNAME: ${IMMICH_DB_USERNAME}
       DB_PASSWORD: ${IMMICH_DB_PASSWORD}
-      DB_DATABASE_NAME: ${IMMICH_DB_DATABASE_NAME}
+      DB_DATABASE_NAME: ${IMMICH_DB_DATABASE_NAME:-immich}
       REDIS_HOSTNAME: redis
       REDIS_PORT: 6379
       REDIS_USERNAME: ${IMMICH_REDIS_USERNAME}
       REDIS_PASSWORD:  ${IMMICH_REDIS_PASSWORD}
     volumes:
       - nfs_immich_data:/data
+      - nfs_immich_photo:/usr/src/app/external:ro      
       - /etc/localtime:/etc/localtime:ro
     ports:
       - target: 2283
@@ -492,6 +493,11 @@ volumes:
     driver_opts:
       <<: *driver-common-ref
       device: :${NFS_DEVICE}/storage/immich/data
+  nfs_immich_photo      :
+    driver: local
+    driver_opts:
+      <<: *driver-common-ref
+      device: :/volume1/photo
   # nfs_immich_model_cache:
   #   driver: local
   #   driver_opts:
