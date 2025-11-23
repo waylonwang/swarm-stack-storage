@@ -493,7 +493,7 @@ volumes:
     driver_opts:
       <<: *driver-common-ref
       device: :${NFS_DEVICE}/storage/immich/data
-  nfs_immich_photo      :
+  nfs_immich_photo:
     driver: local
     driver_opts:
       <<: *driver-common-ref
