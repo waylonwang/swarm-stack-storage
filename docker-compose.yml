@@ -335,7 +335,94 @@ services:
         - homepage.description=filebrowser
         - homepage.siteMonitor=http://filebrowser:80
         - homepage.weight=60
-      <<: [*deploy-common-ref, *placement-default-ref]     
+      <<: [*deploy-common-ref, *placement-default-ref]
+
+  # ------------------------------------------------------------
+  # Immich 照片管理
+  # ------------------------------------------------------------
+  immich-server:
+    <<: *service-common-ref
+    # image-ref: ghcr.io/immich-app/immich-server:release
+    image: registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}/immich-app/immich-server:release
+    environment:
+      <<: *env-common-ref
+      UPLOAD_LOCATION: /data
+      DB_HOSTNAME: postgres
+      DB_PORT: 5432
+      DB_USERNAME: ${IMMICH_DB_USERNAME:-immich}
+      DB_PASSWORD: ${IMMICH_DB_PASSWORD}
+      DB_DATABASE_NAME: ${IMMICH_DB_DATABASE_NAME:-immich}
+      REDIS_HOSTNAME: redis
+      REDIS_PORT: 6379
+    volumes:
+      - nfs_immich_data:/data
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - target: 2283
+        published: 2283
+        protocol: tcp
+        mode: host
+    logging:
+      driver: fluentd
+      options:
+        tag: docker.storage.immich-server
+        fluentd-async-connect: "true"
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.immich.rule=Host(`immich.${DOMAIN_SWARM}`,`immich.${DOMAIN_EMERGENCY}`)
+        - traefik.http.routers.immich.entrypoints=websecure
+        - traefik.http.routers.immich.service=immich
+        - traefik.http.routers.immich.middlewares=auth,normal-chain@file
+        - traefik.http.services.immich.loadbalancer.server.port=2283
+        - homepage.group=Storage
+        - homepage.name=Immich
+        - homepage.icon=photos.png
+        - homepage.href=https://immich.${DOMAIN_SWARM}:${EXTERNAL_PORT}/
+        - homepage.description=开源照片管理
+        - homepage.siteMonitor=http://immich-server:2283
+        - homepage.weight=30
+      <<: [*deploy-common-ref, *placement-default-ref]
+      replicas: 1
+
+  # immich-machine-learning:
+  #   <<: *service-common-ref
+  #   # image-ref: ghcr.io/immich-app/immich-machine-learning:release
+  #   image: registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}/immich-app/immich-machine-learning:release
+  #   environment:
+  #     <<: *env-common-ref
+  #     IMMICH_VERSION: release
+  #     # 机器学习配置
+  #     MODEL_CACHE_TTL: 3600
+  #     # GPU支持配置（如果有GPU节点）
+  #     # NVIDIA_VISIBLE_DEVICES: 0
+  #     # CUDA_VISIBLE_DEVICES: 0
+  #   volumes:
+  #     - nfs_immich_model_cache:/cache
+  #   logging:
+  #     driver: fluentd
+  #     options:
+  #       tag: docker.storage.immich-machine-learning
+  #       fluentd-async-connect: "true"
+  #   deploy:
+  #     labels:
+  #       - homepage.group=Storage
+  #       - homepage.name=Immich ML
+  #       - homepage.icon=photos.png
+  #       - homepage.description=Immich机器学习
+  #       - homepage.weight=31
+  #     <<: [*deploy-common-ref, *placement-default-ref]
+      # 如果有GPU节点，可以取消注释以下配置
+      # placement:
+      #   constraints:
+      #     - node.labels.gpu == true
+      # resources:
+      #   reservations:
+      #     generic_resources:
+      #       - named: GPU
+      #         count: 1
+
+       
 
 networks:
   network_cluster:
@@ -392,4 +479,15 @@ volumes:
     driver_opts:
       <<: *driver-common-ref
       device: :${NFS_DEVICE}/storage/filebrowser/data
+  # Immich相关卷
+  nfs_immich_data:
+    driver: local
+    driver_opts:
+      <<: *driver-common-ref
+      device: :${NFS_DEVICE}/storage/immich/data
+  # nfs_immich_model_cache:
+  #   driver: local
+  #   driver_opts:
+  #     <<: *driver-common-ref
+  #     device: :${NFS_DEVICE}/storage/immich/model_cache
 ...
