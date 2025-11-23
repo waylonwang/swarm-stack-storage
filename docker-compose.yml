@@ -347,13 +347,12 @@ services:
     environment:
       <<: *env-common-ref
       UPLOAD_LOCATION: /data
-      DB_HOSTNAME: postgres
+      DB_HOSTNAME: pgvector
       DB_PORT: 5432
-      DB_USERNAME: ${IMMICH_DB_USERNAME:-immich}
+      DB_USERNAME: ${IMMICH_DB_USERNAME}
       DB_PASSWORD: ${IMMICH_DB_PASSWORD}
-      DB_DATABASE_NAME: ${IMMICH_DB_DATABASE_NAME:-immich}
-      REDIS_HOSTNAME: redis
-      REDIS_PORT: 6379
+      DB_DATABASE_NAME: ${IMMICH_DB_DATABASE_NAME}
+      REDIS_URL: ${IMMICH_REDIS_URL}
     volumes:
       - nfs_immich_data:/data
       - /etc/localtime:/etc/localtime:ro
