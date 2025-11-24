@@ -386,13 +386,13 @@ services:
         - homepage.description=开源照片管理
         - homepage.siteMonitor=http://immich-server:2283
         - homepage.weight=30
-      # <<: [*deploy-common-ref, *placement-default-ref]
-      <<: [*deploy-common-ref]
-      placement:
-        constraints:
-          - node.labels.type == nas
-          - node.labels.nas == backup
-          - node.labels.storage == true
+      <<: [*deploy-common-ref, *placement-default-ref]
+      # <<: [*deploy-common-ref]
+      # placement:
+      #   constraints:
+      #     - node.labels.type == nas
+      #     - node.labels.nas == backup
+      #     - node.labels.storage == true
       
 
   # immich-machine-learning:
