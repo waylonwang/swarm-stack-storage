@@ -358,7 +358,8 @@ services:
       REDIS_PASSWORD:  ${IMMICH_REDIS_PASSWORD}
     volumes:
       - nfs_immich_data:/data
-      - nfs_immich_photo:/usr/src/app/external:ro      
+      - nfs_immich_photo:/usr/src/app/external/photo:ro      
+      - nfs_immich_user_photo:/usr/src/app/external/waylon/photo:ro      
       - /etc/localtime:/etc/localtime:ro
     ports:
       - target: 2283
@@ -498,6 +499,11 @@ volumes:
     driver_opts:
       <<: *driver-common-ref
       device: :/volume1/photo
+  nfs_immich_user_photo:
+    driver: local
+    driver_opts:
+      <<: *driver-common-ref
+      device: :/volume1/homes/waylon/Photos/
   # nfs_immich_model_cache:
   #   driver: local
   #   driver_opts:
